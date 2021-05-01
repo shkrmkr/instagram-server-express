@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { me, signup } from './auth.controllers';
-import { validateLogin } from './auth.validation';
+import { login, refresh, signup } from './auth.controllers';
 
 const authRoutes = Router();
 
-authRoutes.get('/:id', me);
-authRoutes.post('/signup', validateLogin, signup);
+authRoutes.post('/signup', signup);
+authRoutes.post('/login', login);
+authRoutes.get('/refresh', refresh);
 
 export default authRoutes;
