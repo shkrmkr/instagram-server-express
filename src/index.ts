@@ -1,5 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import 'reflect-metadata';
 import authRoutes from './auth';
 import { PORT } from './config/config';
 const app = express();

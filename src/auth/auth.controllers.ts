@@ -1,9 +1,15 @@
 import argon2 from 'argon2';
+import { plainToClass } from 'class-transformer';
 import { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import { REFRESH_TOKEN_SECRET, TOKEN_COOKIE_OPTIONS } from '../config/config';
 import { prisma } from '../config/prisma';
-import { LoginInput, RefreshTokenPayload, SignupInput } from './auth.types';
+import {
+  LoginInput,
+  RefreshTokenPayload,
+  SignupInput,
+  User,
+} from './auth.types';
 import { makeAccessToken, makeRefreshToken } from './auth.utils';
 
 export const signup: RequestHandler = async (req, res) => {
@@ -32,7 +38,16 @@ export const signup: RequestHandler = async (req, res) => {
     const user = await prisma.user.create({
       data: { email, username, fullName, password: hashedPassword },
     });
-    return res.send({ user });
+
+    const accessToken = makeAccessToken({ userId: user.id });
+    const refreshToken = makeRefreshToken({
+      userId: user.id,
+      tokenVersion: user.tokenVersion,
+    });
+
+    return res
+      .cookie('sid', refreshToken, TOKEN_COOKIE_OPTIONS)
+      .send({ accessToken, user: plainToClass(User, user) });
   } catch (error) {
     return res
       .status(500)
@@ -69,7 +84,9 @@ export const login: RequestHandler = async (req, res) => {
     tokenVersion: user.tokenVersion,
   });
 
-  res.cookie('sid', refreshToken, TOKEN_COOKIE_OPTIONS).send({ accessToken });
+  res
+    .cookie('sid', refreshToken, TOKEN_COOKIE_OPTIONS)
+    .send({ accessToken, user: plainToClass(User, user) });
 };
 
 export const refresh: RequestHandler = async (req, res) => {
@@ -106,10 +123,16 @@ export const refresh: RequestHandler = async (req, res) => {
     });
     const accessToken = makeAccessToken({ userId: updatedUser.id });
 
-    res.cookie('sid', refreshToken, TOKEN_COOKIE_OPTIONS).send({ accessToken });
+    res
+      .cookie('sid', refreshToken, TOKEN_COOKIE_OPTIONS)
+      .send({ accessToken, user: plainToClass(User, user) });
   } catch (error) {
     res
       .status(500)
       .send({ message: 'Somthing went wrong. Please try again later.' });
   }
+};
+
+export const logout: RequestHandler = (req, res) => {
+  res.clearCookie('sid').send(true);
 };

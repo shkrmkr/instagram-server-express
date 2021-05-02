@@ -1,14 +1,25 @@
-import { User } from '.prisma/client';
+import { User as PrismaUser } from '.prisma/client';
+import { Exclude } from 'class-transformer';
 
-export type SignupInput = Omit<User, 'id' | 'createdAt'>;
+export type SignupInput = Omit<PrismaUser, 'id' | 'createdAt'>;
 
-export type LoginInput = Pick<User, 'email' | 'password'>;
+export type LoginInput = Pick<PrismaUser, 'email' | 'password'>;
 
 export interface AccessTokenPayload {
-  userId: User['id'];
+  userId: PrismaUser['id'];
 }
 
 export interface RefreshTokenPayload {
-  userId: User['id'];
-  tokenVersion: User['tokenVersion'];
+  userId: PrismaUser['id'];
+  tokenVersion: PrismaUser['tokenVersion'];
+}
+
+export class User implements PrismaUser {
+  id: string;
+  email: string;
+  username: string;
+  fullName: string;
+  @Exclude() password: string;
+  createdAt: Date;
+  @Exclude() tokenVersion: number;
 }

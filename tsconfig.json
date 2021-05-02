@@ -8,7 +8,9 @@
     "lib": ["esnext"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
   },
   "exclude": ["node_modules", "dist"]
 
