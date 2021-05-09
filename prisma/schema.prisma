@@ -11,11 +11,12 @@ generator client {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  username     String   @unique
-  fullName     String
-  password     String
-  createdAt    DateTime @default(now())
-  tokenVersion Int      @default(0)
+  id                String   @id @default(cuid())
+  email             String   @unique
+  username          String   @unique
+  fullName          String
+  password          String
+  createdAt         DateTime @default(now())
+  profilePictureUrl String?
+  tokenVersion      Int      @default(0)
 }
